@@ -1,0 +1,44 @@
+import sqlite3
+import csv
+
+def main():
+    x = input("would you like add or search number ? " )
+    if x.lower() in ("a" , "add"):
+        addnum()
+    if x.lower() in ("s" , "search"):
+        snum()
+
+def addnum():
+    n = input("Enter the name: ")
+    while True:
+        try:
+            s = int(input("Enter the number: "))
+        except ValueError:
+            print("enter the number")
+            pass
+        else:
+            break
+    with open ("daftarche.csv" , "a" , newline = '') as file:
+        writer = csv.DictWriter(file, fieldnames = ['name' , 'number'])
+        writer.writerow({'name' : n,'number' : s})
+    to = (n , s)
+    tel = sqlite3.connect('daftarche.db')
+    cursor = tel.cursor()
+    cursor.execute("CREATE TABLE IF NOT EXISTS users(name TEXT, number INTEGER);")
+    cursor.execute("INSERT INTO users (name , number) VALUES (?,?);",to)
+    tel.commit()
+    tel.close()
+    print("saved")
+
+def snum():
+    f = input("search: ")
+    ftop = (f,)
+    tel = sqlite3.connect('daftarche.db')
+    cursor = tel.cursor()
+    cursor.execute("SELECT number FROM users WHERE name = ?;", ftop)
+    rows = cursor.fetchall()
+    for row in rows:
+        print(row[0])
+    tel.close()
+
+main()
